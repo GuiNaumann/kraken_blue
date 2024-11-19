@@ -9,12 +9,12 @@
         <p class="subtitle">Entre com sua conta para continuar</p>
         <form @submit.prevent="handleLogin">
           <div class="form-groups">
-            <label for="login">Email</label>
+            <label for="login">Email ou CPF</label>
             <input
-                type="email"
+                type="text"
                 id="login"
                 v-model="form.login"
-                placeholder="Digite seu email"
+                placeholder="Digite seu Email ou CPF"
                 required
             />
           </div>
@@ -61,7 +61,7 @@ export default {
   name: "LoginView",
   setup() {
     const form = reactive({
-      login: "",
+      login: "", // Email ou CPF
       password: "",
     });
 
@@ -72,7 +72,37 @@ export default {
       showPassword.value = !showPassword.value;
     };
 
+    const cleanCPF = (cpf) => {
+      return cpf.replace(/\D/g, ""); // Remove todos os caracteres não numéricos
+    };
+
+    const isEmail = (value) => {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(value);
+    };
+
+    const isCPF = (value) => {
+      const cpf = cleanCPF(value); // Limpa o CPF antes de validar
+      const cpfRegex = /^\d{11}$/; // Verifica se tem exatamente 11 números
+      return cpfRegex.test(cpf);
+    };
+
+    const validateLoginField = () => {
+      const cleanedLogin = cleanCPF(form.login);
+      if (!isEmail(form.login) && !isCPF(cleanedLogin)) {
+        errorMessage.value = "Por favor, insira um email ou CPF válido.";
+        return false;
+      }
+      return true;
+    };
+
     const handleLogin = async () => {
+      if (!validateLoginField()) return;
+
+      if (isCPF(form.login)) {
+        form.login = cleanCPF(form.login); // Limpa CPF antes de enviar ao backend
+      }
+
       try {
         const response = await loginUser(form);
         console.log("Login bem-sucedido:", response);
@@ -93,6 +123,7 @@ export default {
     };
   },
 };
+
 </script>
 
 <style scoped>
