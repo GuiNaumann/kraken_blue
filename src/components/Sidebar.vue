@@ -91,9 +91,9 @@ export default {
 .menu-link {
   color: white;
   text-decoration: none;
-  padding: 10px 15px;
+  padding: 15px 100px;
   display: block;
-  border-radius: 5px;
+  border-radius: 1px;
   transition: background 0.3s ease;
 }
 
