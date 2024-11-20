@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard">
     <!-- Barra lateral -->
-    <AppSidebar :user="user" currentSection="Certificados" />
+    <AppSidebar :user="user || placeholderUser" currentSection="Certificados" />
 
     <!-- Área principal -->
     <main class="main-content">
@@ -43,9 +43,10 @@ export default {
   components: { AppSidebar },
   data() {
     return {
-      user: {
-        name: "Guilherme Alexandre Naumann",
-        photo: "/path-to-user-image.jpg",
+      user: null, // Inicializa com null até que os dados sejam carregados
+      placeholderUser: {
+        name: "Usuário Genérico",
+        photo: "/gnerico.png",
       },
       items: [], // Lista de itens para exibir na tabela
     };
@@ -58,6 +59,19 @@ export default {
         this.items = response.data; // Preenche a lista de itens com os dados da API
       } catch (error) {
         console.error("Erro ao buscar itens:", error);
+      }
+    },
+    // Busca as informações pessoais do usuário no endpoint
+    async fetchUserInformation() {
+      try {
+        const response = await axios.get("http://seu-endpoint/api/personalInformation");
+        this.user = {
+          name: response.data.name,
+          photo: response.data.image,
+        }; // Preenche o usuário com os dados retornados
+      } catch (error) {
+        console.error("Erro ao buscar informações pessoais:", error);
+        this.user = this.placeholderUser; // Usa um placeholder em caso de erro
       }
     },
     // Lógica para criar um novo item
@@ -83,6 +97,7 @@ export default {
   },
   mounted() {
     this.fetchItems(); // Chama o método de buscar itens ao montar o componente
+    this.fetchUserInformation(); // Busca as informações pessoais do usuário
   },
 };
 </script>
